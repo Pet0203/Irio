@@ -16,7 +16,8 @@ public class Irio extends Canvas {
     
     //Entrypoint
     public static void main(String[] args) {
-        instance.init();
+        //instance.init();
+        HelloWorld.main(args);
     }
     
     //Main game initiator
