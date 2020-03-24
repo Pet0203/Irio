@@ -87,28 +87,44 @@ public class HelloWorld {
 	private void startRender() {
 		GL.createCapabilities();
 
+		glEnable(GL_TEXTURE_2D);
+
+		//Texture tex = new Texture("./environment/textures/Luigi.png");
+		float[] verticies = new float[] {
+				-1, -1, 0,
+		0, 1,0,
+		1,-1,0
+		};
+		Model model = new Model(verticies);
+		float ouf = 0;
 		while ( !glfwWindowShouldClose(window) ) {
+			//Pull new events
+			glfwPollEvents();
+			if(glfwGetKey(window, GLFW_KEY_A) == GL_TRUE) {
+				ouf+=0.001f;
+			}
+
 			//Clear the buffer
 			glClear(GL_COLOR_BUFFER_BIT);
+			model.render();
 			//Begin drawing a test quad with colorwheel
-			glBegin(GL_QUADS);
-				glColor4f(1,0,0,0);
-				glVertex2f(-0.5f,0.5f);
+			//tex.bind();
+/*			glBegin(GL_QUADS);
+				glTexCoord2f(0,0);
+				glVertex2f(-0.5f+ouf,0.5f);
 
-				glColor4f(0,1,0,0);
-				glVertex2f(0.5f,0.5f);
+			glTexCoord2f(1,0);
+				glVertex2f(0.5f+ouf,0.5f);
 
-				glColor4f(0,0,1,0);
-				glVertex2f(0.5f,-0.5f);
+			glTexCoord2f(1,1);
+				glVertex2f(0.5f+ouf,-0.5f);
 
-				glColor4f(1,1,1,0);
-				glVertex2f(-0.5f,-0.5f);
-			glEnd();
+			glTexCoord2f(0,1);
+				glVertex2f(-0.5f+ouf,-0.5f);
+			glEnd();*/
 
 			//Swap buffer at GPU
 			glfwSwapBuffers(window);
-			//??
-			glfwPollEvents();
 		}
 	}
 
