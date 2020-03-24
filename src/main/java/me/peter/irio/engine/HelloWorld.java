@@ -1,4 +1,4 @@
-package irio.engine;
+package me.peter.irio.engine;
 
 import org.lwjgl.*;
 import org.lwjgl.glfw.*;
@@ -48,7 +48,7 @@ public class HelloWorld {
 		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE); // the window will be resizable
 
 		// Create the window
-		window = glfwCreateWindow(1920, 1080, "Hello World!", NULL, NULL);
+		window = glfwCreateWindow(1920, 1080, "Hello World!", 0, 0);
 		if ( window == NULL )
 			throw new RuntimeException("Failed to create the GLFW window");
 
@@ -79,33 +79,35 @@ public class HelloWorld {
 
 		// Make the OpenGL context current
 		glfwMakeContextCurrent(window);
-		// Enable v-sync
-		glfwSwapInterval(1);
 
 		// Make the window visible
 		glfwShowWindow(window);
 	}
 
 	private void startRender() {
-		// This line is critical for LWJGL's interoperation with GLFW's
-		// OpenGL context, or any context that is managed externally.
-		// LWJGL detects the context that is current in the current thread,
-		// creates the GLCapabilities instance and makes the OpenGL
-		// bindings available for use.
 		GL.createCapabilities();
 
-		// Set the clear color
-		glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
-
-		// Run the rendering loop until the user has attempted to close
-		// the window or has pressed the ESCAPE key.
 		while ( !glfwWindowShouldClose(window) ) {
-			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // clear the framebuffer
+			//Clear the buffer
+			glClear(GL_COLOR_BUFFER_BIT);
+			//Begin drawing a test quad with colorwheel
+			glBegin(GL_QUADS);
+				glColor4f(1,0,0,0);
+				glVertex2f(-0.5f,0.5f);
 
-			glfwSwapBuffers(window); // swap the color buffers
+				glColor4f(0,1,0,0);
+				glVertex2f(0.5f,0.5f);
 
-			// Poll for window events. The key callback above will only be
-			// invoked during this call.
+				glColor4f(0,0,1,0);
+				glVertex2f(0.5f,-0.5f);
+
+				glColor4f(1,1,1,0);
+				glVertex2f(-0.5f,-0.5f);
+			glEnd();
+
+			//Swap buffer at GPU
+			glfwSwapBuffers(window);
+			//??
 			glfwPollEvents();
 		}
 	}
