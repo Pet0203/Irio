@@ -1,4 +1,4 @@
-package me.peter.irio.engine;
+package me.peter.irio.render;
 
 import org.lwjgl.BufferUtils;
 
@@ -19,7 +19,7 @@ public class Texture {
     public Texture(String filename) {
         BufferedImage bi;
         try {
-            bi = ImageIO.read(new File(filename));
+            bi = ImageIO.read(new File("./environment/textures/"+filename));
             width = bi.getWidth();
             height = bi.getHeight();
 

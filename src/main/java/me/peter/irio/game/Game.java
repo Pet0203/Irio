@@ -1,21 +1,25 @@
-package me.peter.irio.engine;
+package me.peter.irio.game;
 
+import me.peter.irio.io.Timer;
+import me.peter.irio.io.Window;
+import me.peter.irio.render.Camera;
+import me.peter.irio.render.Model;
+import me.peter.irio.render.Shader;
+import me.peter.irio.render.Texture;
+import me.peter.irio.world.Tile;
+import me.peter.irio.world.TileRenderer;
+import me.peter.irio.world.World;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.lwjgl.*;
-import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.*;
-import org.lwjgl.system.*;
 
-import java.nio.*;
+import javax.swing.border.TitledBorder;
 
-import static org.lwjgl.glfw.Callbacks.*;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.system.MemoryStack.*;
-import static org.lwjgl.system.MemoryUtil.*;
 
-public class HelloWorld {
+public class Game {
 
 	// The window handle
 	private Window win;
@@ -42,8 +46,8 @@ public class HelloWorld {
 			throw new IllegalStateException("Unable to initialize GLFW");
 
 		win = new Window();
-		win.setSize(3840, 2160);
-		win.setFullscreen(true);
+		win.setSize(1920, 1080);
+		//win.setFullscreen(true);
 		win.createWindow("Game");
 
 		// Configure GLFW
@@ -60,38 +64,14 @@ public class HelloWorld {
 
 		glEnable(GL_TEXTURE_2D);
 
-		Texture tex = new Texture("./environment/textures/Luigi.png");
+		TileRenderer tiles = new TileRenderer();
 
-		Matrix4f scale = new Matrix4f().scale(64);
+		World world = new World();
 
-		Matrix4f target = new Matrix4f();
+		world.setTile(Tile.test2, 0,0);
+		world.setTile(Tile.test2, 63, 63);
 
-
-		float[] verticies = new float[] {
-				-0.5f, 0.5f, 0,
-				0.5f,0.5F,0,
-				0.5f,-0.5f,0,
-				-0.5f, -0.5f, 0
-		};
-
-		float[] texture = new float[] {
-				0,0,
-				1,0,
-				1,1,
-				0,1,
-
-		};
-
-		int[] indicies = new int[] {
-				0,1,2,
-				2,3,0
-		};
-
-
-		Model model = new Model(verticies, texture, indicies);
 		Shader shader = new Shader("shader");
-
-		camera.setPosition(new Vector3f(-100, 0, 0));
 
 		double frame_cap = 1.0/60.0;
 
@@ -114,12 +94,26 @@ public class HelloWorld {
 			while(unprocessed >= frame_cap) {
 				unprocessed-=frame_cap;
 				can_render = true;
-				target = scale;
-				if(glfwGetKey(win.getWindow(), GLFW_KEY_ESCAPE) == GL_TRUE)
+				if(win.getInput().isKeyPressed(GLFW_KEY_ESCAPE))
 					glfwSetWindowShouldClose(win.getWindow(), true);
-				//Pull new events
-				glfwPollEvents();
 
+				if(win.getInput().isKeyDown(GLFW_KEY_A)) {
+					camera.getPosition().sub(new Vector3f(-5, 0,0));
+				}
+
+				if(win.getInput().isKeyDown(GLFW_KEY_D)) {
+					camera.getPosition().sub(new Vector3f(+5, 0,0));
+				}
+
+				if(win.getInput().isKeyDown(GLFW_KEY_W)) {
+					camera.getPosition().sub(new Vector3f(0, 5,0));
+				}
+
+				if(win.getInput().isKeyDown(GLFW_KEY_S)) {
+					camera.getPosition().sub(new Vector3f(0, -5,0));
+				}
+				world.correctCamera(camera, win);
+				win.update();
 				if (frame_time >= 1.0) {
 					frame_time = 0;
 					System.out.println("FPS: " + frames);
@@ -131,11 +125,13 @@ public class HelloWorld {
 				//Clear the buffer
 				glClear(GL_COLOR_BUFFER_BIT);
 
-				shader.bind();
+/*				shader.bind();
 				shader.setUniform("sampler", 0);
 				shader.setUniform("projection", camera.getProjection().mul(target));
 				tex.bind(0);
-				model.render();
+				model.render();*/
+
+				world.render(tiles, shader, camera);
 
 				//Swap buffer at GPU
 				win.swapBuffers();
@@ -146,7 +142,7 @@ public class HelloWorld {
 	}
 
 	public static void main(String[] args) {
-		new HelloWorld().run();
+		new Game().run();
 	}
 
 }

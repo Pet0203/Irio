@@ -1,4 +1,4 @@
-package me.peter.irio.engine;
+package me.peter.irio.render;
 
 import org.lwjgl.BufferUtils;
 

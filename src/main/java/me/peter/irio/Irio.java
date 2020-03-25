@@ -3,7 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package me.peter.irio.engine;
+package me.peter.irio;
+
+import me.peter.irio.game.Game;
 
 import java.awt.Canvas;
 
@@ -17,7 +19,7 @@ public class Irio extends Canvas {
     //Entrypoint
     public static void main(String[] args) {
         //instance.init();
-        HelloWorld.main(args);
+        Game.main(args);
     }
     
     //Main game initiator
