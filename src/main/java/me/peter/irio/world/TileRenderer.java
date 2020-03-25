@@ -16,10 +16,10 @@ public class TileRenderer {
     public TileRenderer() {
         tile_textures = new HashMap<String, Texture>();
         float[] verticies = new float[] {
-                -0.5f, 0.5f, 0,
-                0.5f,0.5F,0,
-                0.5f,-0.5f,0,
-                -0.5f, -0.5f, 0
+                -1f, 1f, 0,
+                1f,1f,0,
+                1f,-1f,0,
+                -1f, -1f, 0
         };
 
         float[] texture = new float[] {
@@ -46,10 +46,10 @@ public class TileRenderer {
         }
     }
 
-    public void renderTile(byte id, int x, int y, Shader shader, Matrix4f world, Camera camera) {
+    public void renderTile(Tile tile, int x, int y, Shader shader, Matrix4f world, Camera camera) {
         shader.bind();
-        if (tile_textures.containsKey(Tile.tiles[id].getTexture()))
-            tile_textures.get(Tile.tiles[id].getTexture()).bind(0);
+        if (tile_textures.containsKey(tile.getTexture()))
+            tile_textures.get(tile.getTexture()).bind(0);
 
         Matrix4f tile_pos = new Matrix4f().translate(new Vector3f(x*2, y*2, 0));
         Matrix4f target = new Matrix4f();

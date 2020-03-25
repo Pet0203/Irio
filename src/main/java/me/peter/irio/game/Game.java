@@ -46,7 +46,7 @@ public class Game {
 			throw new IllegalStateException("Unable to initialize GLFW");
 
 		win = new Window();
-		win.setSize(1920, 1080);
+		win.setSize(640, 380);
 		//win.setFullscreen(true);
 		win.createWindow("Game");
 
@@ -125,13 +125,7 @@ public class Game {
 				//Clear the buffer
 				glClear(GL_COLOR_BUFFER_BIT);
 
-/*				shader.bind();
-				shader.setUniform("sampler", 0);
-				shader.setUniform("projection", camera.getProjection().mul(target));
-				tex.bind(0);
-				model.render();*/
-
-				world.render(tiles, shader, camera);
+				world.render(tiles, shader, camera, win);
 
 				//Swap buffer at GPU
 				win.swapBuffers();
