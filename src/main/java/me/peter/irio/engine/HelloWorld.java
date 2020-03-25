@@ -1,5 +1,7 @@
 package me.peter.irio.engine;
 
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import org.lwjgl.*;
 import org.lwjgl.glfw.*;
 import org.lwjgl.opengl.*;
@@ -16,7 +18,7 @@ import static org.lwjgl.system.MemoryUtil.*;
 public class HelloWorld {
 
 	// The window handle
-	private long window;
+	private Window win;
 
 	public void run() {
 		System.out.println("Starting LWJGL " + Version.getVersion() + "!");
@@ -25,8 +27,7 @@ public class HelloWorld {
 		startRender();
 
 		// Free the window callbacks and destroy the window
-		glfwFreeCallbacks(window);
-		glfwDestroyWindow(window);
+		win.destroyWindow();
 
 		// Terminate GLFW and free the error callback
 		glfwTerminate();
@@ -34,97 +35,113 @@ public class HelloWorld {
 	}
 
 	private void init() {
-		// Setup an error callback. The default implementation
-		// will print the error message in System.err.
-		GLFWErrorCallback.createPrint(System.err).set();
+		Window.setCallbacks();
 
 		// Initialize GLFW. Most GLFW functions will not work before doing this.
 		if ( !glfwInit() )
 			throw new IllegalStateException("Unable to initialize GLFW");
 
+		win = new Window();
+		win.setSize(3840, 2160);
+		win.setFullscreen(true);
+		win.createWindow("Game");
+
 		// Configure GLFW
 		glfwDefaultWindowHints(); // optional, the current window hints are already the default
 		glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE); // the window will stay hidden after creation
-		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE); // the window will be resizable
+		glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE); // the window will be resizable
 
-		// Create the window
-		window = glfwCreateWindow(1920, 1080, "Hello World!", 0, 0);
-		if ( window == NULL )
-			throw new RuntimeException("Failed to create the GLFW window");
-
-		// Setup a key callback. It will be called every time a key is pressed, repeated or released.
-		glfwSetKeyCallback(window, (window, key, scancode, action, mods) -> {
-			if ( key == GLFW_KEY_ESCAPE && action == GLFW_RELEASE )
-				glfwSetWindowShouldClose(window, true); // We will detect this in the rendering loop
-		});
-
-		// Get the thread stack and push a new frame
-		try ( MemoryStack stack = stackPush() ) {
-			IntBuffer pWidth = stack.mallocInt(1); // int*
-			IntBuffer pHeight = stack.mallocInt(1); // int*
-
-			// Get the window size passed to glfwCreateWindow
-			glfwGetWindowSize(window, pWidth, pHeight);
-
-			// Get the resolution of the primary monitor
-			GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-
-			// Center the window
-			glfwSetWindowPos(
-				window,
-				(vidmode.width() - pWidth.get(0)) / 2,
-				(vidmode.height() - pHeight.get(0)) / 2
-			);
-		} // the stack frame is popped automatically
-
-		// Make the OpenGL context current
-		glfwMakeContextCurrent(window);
-
-		// Make the window visible
-		glfwShowWindow(window);
 	}
 
 	private void startRender() {
 		GL.createCapabilities();
 
+		Camera camera = new Camera(win.getWidth(), win.getHeight());
+
 		glEnable(GL_TEXTURE_2D);
 
-		//Texture tex = new Texture("./environment/textures/Luigi.png");
+		Texture tex = new Texture("./environment/textures/Luigi.png");
+
+		Matrix4f scale = new Matrix4f().scale(64);
+
+		Matrix4f target = new Matrix4f();
+
+
 		float[] verticies = new float[] {
-				-1, -1, 0,
-		0, 1,0,
-		1,-1,0
+				-0.5f, 0.5f, 0,
+				0.5f,0.5F,0,
+				0.5f,-0.5f,0,
+				-0.5f, -0.5f, 0
 		};
-		Model model = new Model(verticies);
-		float ouf = 0;
-		while ( !glfwWindowShouldClose(window) ) {
-			//Pull new events
-			glfwPollEvents();
-			if(glfwGetKey(window, GLFW_KEY_A) == GL_TRUE) {
-				ouf+=0.001f;
+
+		float[] texture = new float[] {
+				0,0,
+				1,0,
+				1,1,
+				0,1,
+
+		};
+
+		int[] indicies = new int[] {
+				0,1,2,
+				2,3,0
+		};
+
+
+		Model model = new Model(verticies, texture, indicies);
+		Shader shader = new Shader("shader");
+
+		camera.setPosition(new Vector3f(-100, 0, 0));
+
+		double frame_cap = 1.0/60.0;
+
+		double frame_time = 0;
+		int frames= 0;
+
+		double time = Timer.getTime();
+		double unprocessed = 0;
+
+		while (!win.shouldClose()) {
+			boolean can_render = false;
+
+			double time_2 = Timer.getTime();
+			double passed = time_2 - time;
+			unprocessed+=passed;
+			frame_time += passed;
+
+			time = time_2;
+
+			while(unprocessed >= frame_cap) {
+				unprocessed-=frame_cap;
+				can_render = true;
+				target = scale;
+				if(glfwGetKey(win.getWindow(), GLFW_KEY_ESCAPE) == GL_TRUE)
+					glfwSetWindowShouldClose(win.getWindow(), true);
+				//Pull new events
+				glfwPollEvents();
+
+				if (frame_time >= 1.0) {
+					frame_time = 0;
+					System.out.println("FPS: " + frames);
+					frames = 0;
+				}
 			}
 
-			//Clear the buffer
-			glClear(GL_COLOR_BUFFER_BIT);
-			model.render();
-			//Begin drawing a test quad with colorwheel
-			//tex.bind();
-/*			glBegin(GL_QUADS);
-				glTexCoord2f(0,0);
-				glVertex2f(-0.5f+ouf,0.5f);
+			if (can_render) {
+				//Clear the buffer
+				glClear(GL_COLOR_BUFFER_BIT);
 
-			glTexCoord2f(1,0);
-				glVertex2f(0.5f+ouf,0.5f);
+				shader.bind();
+				shader.setUniform("sampler", 0);
+				shader.setUniform("projection", camera.getProjection().mul(target));
+				tex.bind(0);
+				model.render();
 
-			glTexCoord2f(1,1);
-				glVertex2f(0.5f+ouf,-0.5f);
+				//Swap buffer at GPU
+				win.swapBuffers();
+				frames++;
+			}
 
-			glTexCoord2f(0,1);
-				glVertex2f(-0.5f+ouf,-0.5f);
-			glEnd();*/
-
-			//Swap buffer at GPU
-			glfwSwapBuffers(window);
 		}
 	}
 
