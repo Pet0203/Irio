@@ -1,7 +1,9 @@
 package me.peter.irio.game;
 
+import me.peter.irio.entity.Player;
 import me.peter.irio.io.Timer;
 import me.peter.irio.io.Window;
+import me.peter.irio.physics.collision.AABB;
 import me.peter.irio.render.Camera;
 import me.peter.irio.render.Model;
 import me.peter.irio.render.Shader;
@@ -10,6 +12,7 @@ import me.peter.irio.world.Tile;
 import me.peter.irio.world.TileRenderer;
 import me.peter.irio.world.World;
 import org.joml.Matrix4f;
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.lwjgl.*;
 import org.lwjgl.opengl.*;
@@ -63,13 +66,30 @@ public class Game {
 		Camera camera = new Camera(win.getWidth(), win.getHeight());
 
 		glEnable(GL_TEXTURE_2D);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		TileRenderer tiles = new TileRenderer();
 
 		World world = new World();
 
-		world.setTile(Tile.test2, 0,0);
-		world.setTile(Tile.test2, 63, 63);
+		Player player = new Player();
+
+		glClearColor(4, 156, 216, 0);
+
+		for (int i = 10; i < 12; i++) {
+			for (int j = 0; j < 64; j++) {
+				world.setTile(Tile.GROUND, j, i);
+			}
+		}
+
+		world.setTile(Tile.QUESTION, 6, 6);
+		world.setTile(Tile.BRICKS, 10, 6);
+		world.setTile(Tile.QUESTION, 11, 6);
+		world.setTile(Tile.BRICKS, 12, 6);
+		world.setTile(Tile.QUESTION, 12, 2);
+		world.setTile(Tile.QUESTION, 13, 6);
+		world.setTile(Tile.BRICKS, 14, 6);
 
 		Shader shader = new Shader("shader");
 
@@ -96,22 +116,7 @@ public class Game {
 				can_render = true;
 				if(win.getInput().isKeyPressed(GLFW_KEY_ESCAPE))
 					glfwSetWindowShouldClose(win.getWindow(), true);
-
-				if(win.getInput().isKeyDown(GLFW_KEY_A)) {
-					camera.getPosition().sub(new Vector3f(-5, 0,0));
-				}
-
-				if(win.getInput().isKeyDown(GLFW_KEY_D)) {
-					camera.getPosition().sub(new Vector3f(+5, 0,0));
-				}
-
-				if(win.getInput().isKeyDown(GLFW_KEY_W)) {
-					camera.getPosition().sub(new Vector3f(0, 5,0));
-				}
-
-				if(win.getInput().isKeyDown(GLFW_KEY_S)) {
-					camera.getPosition().sub(new Vector3f(0, -5,0));
-				}
+				player.update((float)frame_cap, win, camera, world);
 				world.correctCamera(camera, win);
 				win.update();
 				if (frame_time >= 1.0) {
@@ -126,6 +131,8 @@ public class Game {
 				glClear(GL_COLOR_BUFFER_BIT);
 
 				world.render(tiles, shader, camera, win);
+
+				player.render(shader, camera);
 
 				//Swap buffer at GPU
 				win.swapBuffers();

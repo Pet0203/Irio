@@ -1,14 +1,17 @@
 package me.peter.irio.world;
 
 import me.peter.irio.io.Window;
+import me.peter.irio.physics.collision.AABB;
 import me.peter.irio.render.Camera;
 import me.peter.irio.render.Shader;
 import org.joml.Matrix4f;
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 public class World {
     private final int view = 24;
     private byte[] tiles;
+    private AABB[] bounding_boxes;
     private int width;
     private int height;
     private int scale;
@@ -17,21 +20,17 @@ public class World {
 
     public World(){
         width = 64;
-        height = 64;
+        height = 12;
         scale = 16;
 
         tiles = new byte[width*height];
+        bounding_boxes = new AABB[width*height];
 
         world = new Matrix4f().translate(new Vector3f(0));
         world.scale(scale);
     }
 
     public void render(TileRenderer renderer, Shader shader, Camera camera, Window window) {
-        /*for(int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
-                renderer.renderTile( tiles[j+i*width], j, -i, shader, world, camera);
-            }
-        }*/
         int posX = ((int) camera.getPosition().x + (window.getWidth()/2)) / (scale * 2);
         int posY = ((int) camera.getPosition().y - (window.getHeight()/2)) / (scale * 2);
 
@@ -63,6 +62,11 @@ public class World {
 
     public void setTile(Tile tile, int x, int y) {
         tiles[x + y * width] = tile.getId();
+        if (tile.isSolid()) {
+            bounding_boxes[x+y*width] = new AABB(new Vector2f(x*2, -y*2), new Vector2f(1,1));
+        } else {
+            bounding_boxes[x+y*width] = null;
+        }
     }
     public Tile getTile(int x, int y){
         try {
@@ -70,5 +74,17 @@ public class World {
         } catch (ArrayIndexOutOfBoundsException e) {
             return null;
         }
+    }
+
+    public AABB getTileBoundingBox(int x, int y){
+        try {
+            return bounding_boxes[x+y*width];
+        } catch (ArrayIndexOutOfBoundsException e) {
+            return null;
+        }
+    }
+
+    public int getScale(){
+        return scale;
     }
 }
