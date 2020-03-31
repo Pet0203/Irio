@@ -4,10 +4,8 @@ import me.peter.irio.entity.Player;
 import me.peter.irio.io.Timer;
 import me.peter.irio.io.Window;
 import me.peter.irio.physics.collision.AABB;
-import me.peter.irio.render.Camera;
-import me.peter.irio.render.Model;
-import me.peter.irio.render.Shader;
-import me.peter.irio.render.Texture;
+import me.peter.irio.render.*;
+import me.peter.irio.render.font.TrueTypeFont;
 import me.peter.irio.world.Tile;
 import me.peter.irio.world.TileRenderer;
 import me.peter.irio.world.World;
@@ -18,6 +16,8 @@ import org.lwjgl.*;
 import org.lwjgl.opengl.*;
 
 import javax.swing.border.TitledBorder;
+
+import java.awt.*;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
@@ -50,6 +50,7 @@ public class Game {
 
 		win = new Window();
 		win.setSize(640, 380);
+		//win.setSize(2880, 1440);
 		//win.setFullscreen(true);
 		win.createWindow("Game");
 
@@ -98,9 +99,11 @@ public class Game {
 		double frame_time = 0;
 		int frames= 0;
 
+		Text FPSCounter = new Text("Comic Sans MS", Font.BOLD, 16, 10, 10, "FPS: 0");
+
 		double time = Timer.getTime();
 		double unprocessed = 0;
-
+		glClearColor(255,0,0,0);
 		while (!win.shouldClose()) {
 			boolean can_render = false;
 
@@ -122,6 +125,7 @@ public class Game {
 				if (frame_time >= 1.0) {
 					frame_time = 0;
 					System.out.println("FPS: " + frames);
+					FPSCounter.updateContent("FPS: " + frames);
 					frames = 0;
 				}
 			}
@@ -133,7 +137,7 @@ public class Game {
 				world.render(tiles, shader, camera, win);
 
 				player.render(shader, camera);
-
+				FPSCounter.render();
 				//Swap buffer at GPU
 				win.swapBuffers();
 				frames++;
