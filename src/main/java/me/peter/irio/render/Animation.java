@@ -24,6 +24,8 @@ public class Animation {
         }
     }
 
+    public void changeSpeed(double fps) { this.fps = 1.0/fps; }
+
     public void bind() {bind(0);}
 
     public void bind(int sampler) {

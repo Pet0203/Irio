@@ -45,6 +45,11 @@ public class Model {
         glDeleteBuffers(i_id);
     }
 
+    public void flip(float[] tex_coords) {
+        glBindBuffer(GL_ARRAY_BUFFER, t_id);
+        glBufferData(GL_ARRAY_BUFFER, createBuffer(tex_coords), GL_STATIC_DRAW);
+    }
+
     public void render() {
         glEnableVertexAttribArray(0);
         glEnableVertexAttribArray(1);

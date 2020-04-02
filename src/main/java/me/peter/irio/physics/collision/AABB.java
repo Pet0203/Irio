@@ -30,9 +30,11 @@ public class AABB {
             }
         } else {
             if (correction.y > 0) {
+                System.out.println("Correcting with: " + data.distance.y);
                 center.add(0, data.distance.y);
             } else {
                 center.add(0, -data.distance.y);
+                System.out.println("Correcting with: " + -data.distance.y);
             }
         }
     }

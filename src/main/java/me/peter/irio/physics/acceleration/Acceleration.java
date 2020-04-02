@@ -2,13 +2,21 @@ package me.peter.irio.physics.acceleration;
 
 public class Acceleration {
 
-    private static final float topSpeed = 15;
-    private static final float topSpeedRunning = 30;
-    private static final float acc = 3;
-    private static final float accRunning = 4;
+    private final float topSpeed = 15;
+    private final float topSpeedRunning = 30;
+    private final float acc = 0.3f;
+    private final float accRunning = 1.2f;
 
-    public static float increaseSpeed(float currentSpeed, boolean forward, boolean sprinting) {
-        float newspeed = currentSpeed;
+    private float speed;
+    private boolean sprinting;
+
+    public Acceleration (float speed) {
+        this.speed = speed;
+        this.sprinting = false;
+    }
+
+    public void increaseSpeed(boolean forward) {
+        float newspeed = speed;
         if (sprinting) {
             if (forward)
                 newspeed += accRunning;
@@ -22,38 +30,60 @@ public class Acceleration {
         }
 
         if (sprinting) {
-            if (newspeed > topSpeedRunning)
-                return topSpeedRunning;
-            if (newspeed < -topSpeedRunning)
-                return -topSpeedRunning;
+            if (newspeed > topSpeedRunning) {
+                speed = topSpeedRunning;
+                return;
+            }
+            if (newspeed < -topSpeedRunning) {
+                speed = -topSpeedRunning;
+                return;
+            }
         } else {
             if (newspeed > topSpeed) {
-                newspeed = decreaseSpeed(newspeed);
-                if (newspeed < topSpeed)
-                    return topSpeed;
+                if (speed < topSpeed) {
+                    speed = topSpeed;
+                    return;
+                }
+                decreaseSpeed();
+                return;
             }
             if (newspeed < -topSpeed) {
-                newspeed = decreaseSpeed(newspeed);
-                if (newspeed > -topSpeed)
-                    return topSpeed;
+                if (speed > -topSpeed) {
+                    speed = -topSpeed;
+                    return;
+                }
+                decreaseSpeed();
+                return;
             }
 
         }
-        return newspeed;
+        speed = newspeed;
     }
 
-    public static float decreaseSpeed(float currentSpeed) {
-        if (currentSpeed < 0) {
-            if (currentSpeed > -1)
-                return 0;
-            return currentSpeed + 2f;
+    public void decreaseSpeed() {
+        if (speed < 0) {
+            if (speed > -1) {
+                speed = 0;
+                return;
+            }
+            speed += 2f;
+            return;
         }
-        if (currentSpeed > 0) {
-            if (currentSpeed < 1)
-                return 0;
-            return currentSpeed + -2f;
+        if (speed > 0) {
+            if (speed < 1) {
+                speed = 0;
+                return;
+            }
+            speed += -2f;
+            return;
         }
-        return 0;
+        speed = 0;
     }
+
+    public void impact() { speed = 0; }
+
+    public void setSprinting(boolean value) { this.sprinting = value; }
+
+    public float getSpeed() { return speed; }
 
 }
