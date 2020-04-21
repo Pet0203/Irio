@@ -1,6 +1,10 @@
 package me.peter.irio.physics.acceleration;
 
 
+import me.peter.irio.entity.Transform;
+import me.peter.irio.physics.collision.AABB;
+import me.peter.irio.world.World;
+
 public class Gravity {
     private final float acc = -2;
 
@@ -21,7 +25,23 @@ public class Gravity {
         speed += acc;
     }
 
-    public void update(boolean jumping) {
+    public void update(boolean jumping, Transform transform, World world) {
+        int centerTileX = (int) ((transform.pos.x / 2) + 0.5f);
+        int centerTileY = (int) ((-transform.pos.y / 2) + 0.5f);
+        if (world.getTile(centerTileX, centerTileY + 1).isSolid()) {
+            if (centerTileY != -transform.pos.y / 2) {
+                touchingGround = false;
+            }
+        } else
+            touchingGround = false;
+        if (!jumping) {
+            if (world.getTile(centerTileX, centerTileY + 1).isSolid()) {
+                if (centerTileY == -transform.pos.y / 2) {
+                    touchingGround = true;
+                    return;
+                }
+            }
+        }
         System.out.println("New jumps: " + allowNewJumps + " Touching ground: " + touchingGround);
         if (allowNewJumps && touchingGround)
             jumpTimes = 0;

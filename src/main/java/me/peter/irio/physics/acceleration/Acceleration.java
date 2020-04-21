@@ -59,7 +59,7 @@ public class Acceleration {
         }
         speed = newspeed;
     }
-
+    //TODO: Man stannar snabbare genom att sluta gå än att börja gå mot andra hållet??
     public void decreaseSpeed() {
         if (speed < 0) {
             if (speed > -1) {

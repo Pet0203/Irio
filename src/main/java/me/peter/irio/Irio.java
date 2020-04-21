@@ -7,27 +7,18 @@ package me.peter.irio;
 
 import me.peter.irio.game.Game;
 
-import java.awt.Canvas;
-
 /**
- *
- * @author 020326pm
+ * Huvudklass för programmet
  */
-public class Irio extends Canvas {
-    private final static Irio instance = new Irio();
-    
-    //Entrypoint
+public class Irio{
+
+    /**
+     * Startpunkt för programmer
+     * @param args startargument. Finns inga för tillfället.
+     */
     public static void main(String[] args) {
-        //instance.init();
+        //instance.init(); TODO: Meny för spelet
         Game.main(args);
     }
-    
-    //Main game initiator
-    private void init() {
-        
-    }
-    
-    public static Irio getInstance(){
-        return instance;
-    }
+
 }
